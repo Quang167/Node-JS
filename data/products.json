@@ -1,0 +1,38 @@
+[{
+        "name": "Iphone 555",
+        "price": 900,
+        "id": 1683879352659
+    },
+    {
+        "id": 1683879715564,
+        "name": "iphone 6",
+        "price": "700",
+        "description": "dt iphone 6"
+    },
+    {
+        "id": 1683879721657,
+        "name": "Iphone 99",
+        "price": 1000,
+        "description": "dt iphone 99"
+    },
+    {
+        "id": 1684149593819,
+        "name": "iphone 9",
+        "price": "700",
+        "description": "dt iphone 9",
+        "phone": "0366666666"
+    },
+    {
+        "id": 1684397315742,
+        "name": "Iphone X",
+        "price": 123,
+        "description": "Đẹp"
+    },
+    {
+        "id": 1684398820246,
+        "name": "Iphone XX",
+        "price": 1234,
+        "description": "Okela",
+        "discount": 10
+    }
+]

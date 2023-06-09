@@ -1,0 +1,9 @@
+[{
+    "id": 1,
+    "firstname": "nguyen",
+    "lastname": "quang",
+    "phonenumber": "0123456789",
+    "address": "TP HCM",
+    "email": "quang@gmail.com",
+    "birdthday": "16-07-2002"
+}]
