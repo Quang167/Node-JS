@@ -11,7 +11,6 @@ const {
     insertDocuments,
 } = require('../../helpers/MongoDbHelper');
 const Media = require('../../models/Media');
-// const Media = require('../models/Media');
 
 module.exports = {
     uploadSingle: async(req, res, next) => upload.single('file')(req, res, async(err) => {
