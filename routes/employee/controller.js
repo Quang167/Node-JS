@@ -1,6 +1,88 @@
+const JWT = require('jsonwebtoken');
+
 const { Employee } = require('../../models');
+const { generateToken, generateRefreshToken } = require('../../helpers/jwtHelper');
+const jwtSettings = require('../../constants/jwtSetting');
 
 module.exports = {
+    login: async(req, res, next) => {
+        try {
+            const { email } = req.body;
+
+            const employee = await Employee.findOne({ email }).select('-password').lean();
+
+            const token = generateToken(employee);
+            const refreshToken = generateRefreshToken(employee._id);
+
+            return res.status(200).json({
+                token,
+                refreshToken,
+            });
+        } catch (err) {
+            res.status(400).json({
+                statusCode: 400,
+                message: 'Looi',
+            });
+        }
+    },
+
+    checkRefreshToken: async(req, res, next) => {
+        try {
+            const { refreshToken } = req.body;
+
+            JWT.verify(refreshToken, jwtSettings.SECRET, async(err, decoded) => {
+                if (err) {
+                    return res.status(401).json({
+                        message: 'refreshToken is invalid',
+                    });
+                } else {
+                    console.log('««««« decoded »»»»»', decoded);
+                    const { id } = decoded;
+
+                    const employee = await Employee.findById(id).select('-password').lean();
+
+                    if (employee && employee.isActive) {
+                        const token = generateToken(employee);
+
+                        return res.status(200).json({ token });
+                    }
+                    return res.sendStatus(401);
+                }
+            });
+        } catch (err) {
+            console.log('««««« err »»»»»', err);
+            res.status(400).json({
+                statusCode: 400,
+                message: 'Lỗi',
+            });
+        }
+    },
+
+    basic: async(req, res, next) => {
+        try {
+            const employee = await Employee.findById(req.user._id).select('-password').lean();
+            const token = generateToken(employee);
+            const refreshToken = generateRefreshToken(employee._id);
+
+            res.json({
+                token,
+                refreshToken,
+            });
+        } catch (err) {
+            res.sendStatus(400);
+        }
+    },
+
+    getMe: async(req, res, next) => {
+        try {
+            res.status(200).json({
+                payload: req.user,
+            });
+        } catch (err) {
+            res.sendStatus(500);
+        }
+    },
+
     getAll: async(req, res, next) => {
         try {
             let results = await Employee.find()
@@ -56,7 +138,11 @@ module.exports = {
                 });
             }
 
+            console.log('««««« data »»»»»', data);
+
             const newItem = new Employee(data);
+
+            console.log('««««« newItem »»»»»', newItem);
 
             let result = await newItem.save();
 

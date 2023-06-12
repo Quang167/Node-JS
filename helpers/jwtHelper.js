@@ -2,13 +2,26 @@ const JWT = require('jsonwebtoken');
 
 const jwtSettings = require('../constants/jwtSetting');
 
-const encodeToken = (user) => {
-    return JWT.sign({
-        iat: new Date().getTime(),
-        exp: new Date().setDate(new Date().getDate() + 1),
-        ...user,
-        algorithm: 'HS256',
-    }, jwtSettings.SECRET)
-}
+const generateToken = (user) => {
+    const expiresIn = '3d';
+    const algorithm = 'HS256';
 
-module.exports = encodeToken;
+    return JWT.sign({
+        iat: Math.floor(Date.now() / 1000),
+        ...user,
+        algorithm,
+    }, jwtSettings.SECRET, {
+        expiresIn,
+    })
+};
+
+const generateRefreshToken = (id) => {
+    const expiresIn = '30d';
+
+    return JWT.sign({ id }, jwtSettings.SECRET, { expiresIn })
+};
+
+module.exports = {
+    generateToken,
+    generateRefreshToken,
+};

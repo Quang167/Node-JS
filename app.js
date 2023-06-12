@@ -5,8 +5,17 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors');
 const { default: mongoose } = require('mongoose');
+const passport = require('passport');
 
-var indexRouter = require('./routes/index');
+require('dotenv').config()
+
+const { CONNECTION_STRING } = require('./constants/dbSettings');
+
+const {
+    passportConfig,
+    passportConfigLocal,
+    passportConfigBasic,
+} = require('./middlewares/passport');
 
 // var suppliersRouter = require('./routes/suppliers');
 // var productsRouter = require('./routes/products');
@@ -16,6 +25,7 @@ var indexRouter = require('./routes/index');
 // var ordersRouter = require('./routes/orders');
 // var productsFileRouter = require('./routes/products.file');
 
+var indexRouter = require('./routes/index');
 var questionsRouter = require('./routes/question/router');
 
 var productsRouter = require('./routes/product/router');
@@ -24,15 +34,17 @@ var suppliersRouter = require('./routes/supplier/router');
 var employeesRouter = require('./routes/employee/router');
 var customersRouter = require('./routes/customer/router');
 var ordersRouter = require('./routes/order/router');
-
-const { CONNECTION_STRING } = require('./constants/dbSettings');
-
+var mediaRouter = require('./routes/media/router');
 
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+
+passport.use(passportConfig);
+passport.use(passportConfigLocal);
+passport.use(passportConfigBasic);
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -50,15 +62,15 @@ mongoose.set('strictQuery', false);
 mongoose.connect(CONNECTION_STRING);
 
 app.use('/', indexRouter);
-// app.use('/products', productsRouter);
-app.use('/products', productsRouter);
-app.use('/suppliers', suppliersRouter);
-app.use('/categories', categoriesRouter);
-app.use('/customers', customersRouter);
-app.use('/employees', employeesRouter);
-app.use('/orders', ordersRouter);
 app.use('/questions', questionsRouter);
-// app.use('/products-file', productsFileRouter);
+
+app.use('/employees', employeesRouter);
+app.use('/categories', passport.authenticate('jwt', { session: false }), categoriesRouter);
+app.use('/suppliers', passport.authenticate('jwt', { session: false }), suppliersRouter);
+app.use('/customers', passport.authenticate('jwt', { session: false }), customersRouter);
+app.use('/products', passport.authenticate('jwt', { session: false }), productsRouter);
+app.use('/orders', passport.authenticate('jwt', { session: false }), ordersRouter);
+app.use('/media', passport.authenticate('jwt', { session: false }), mediaRouter);
 
 
 // catch 404 and forward to error handler
