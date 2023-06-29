@@ -12,7 +12,11 @@ const categorySchema = new Schema({
         type: String,
         maxLength: [50, 'Mô tả danh mục không được vượt quá 500 kí tự'],
     },
-
+    isBlocked: {
+        type: Boolean,
+        default: false,
+        required: true,
+    },
 }, {
     versionKey: false,
     timestamps: true,

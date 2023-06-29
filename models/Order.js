@@ -58,34 +58,36 @@ const orderSchema = new Schema({
         type: String,
         required: true,
         default: 'CASH',
-        validate: {
-            validator: (value) => {
-                if (['CASH', 'CREDIT CARD'].includes(value.toUpperCase())) {
-                    return true;
-                }
-                return false;
-            },
-            message: `Payment type: {VALUE} is invalid!`,
-        },
+        enum: ['CASH', 'CREDIT CARD'],
+        // validate: {
+        //   validator: (value) => {
+        //     if (['CASH', 'CREDIT CARD'].includes(value.toUpperCase())) {
+        //       return true;
+        //     }
+        //     return false;
+        //   },
+        //   message: `Payment type: {VALUE} is invalid!`,
+        // },
     },
 
     status: {
         type: String,
         required: true,
+        enum: ['WAITING', 'COMPLETED', 'CANCELED'],
         default: 'WAITING',
-        validate: {
-            validator: (value) => {
-                if (['WAITING', 'COMPLETED', 'CANCELED'].includes(value)) {
-                    return true;
-                }
-                return false;
-            },
-            message: `Status: {VALUE} is invalid!`,
-        },
+        // validate: {
+        //   validator: (value) => {
+        //     if (['WAITING', 'COMPLETED', 'CANCELED'].includes(value)) {
+        //       return true;
+        //     }
+        //     return false;
+        //   },
+        //   message: `Status: {VALUE} is invalid!`,
+        // },
     },
 
     customerId: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
-    employeeId: { type: Schema.Types.ObjectId, ref: 'Employee', required: true },
+    employeeId: { type: Schema.Types.ObjectId, ref: 'Employee' },
 
     // Array
     orderDetails: [orderDetailSchema],

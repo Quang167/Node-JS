@@ -1912,4 +1912,233 @@ module.exports = {
         }
     },
 
+
+
+    categorylimit: async(req, res, next) => {
+        try {
+
+            let results = await Category.find()
+                .limit(20);
+            console.log('««««« results »»»»»', results);
+            let total = await Category.countDocuments();
+
+            return res.send({
+                code: 200,
+                total,
+                totalResult: results.length,
+                payload: results,
+            });
+        } catch (err) {
+            return res.status(500).json({ code: 500, error: err });
+        }
+    },
+
+
+    flashsale: async(req, res, next) => {
+        try {
+            const conditionFind = {
+                discount: { $gt: 0 },
+            };
+
+            console.log("««««« conditionFind »»»»»", conditionFind);
+
+            let results = await Product.find(conditionFind)
+                .sort({ discount: -1 })
+                .limit(10);
+            console.log('««««« results »»»»»', results);
+            let total = await Product.countDocuments();
+
+            return res.send({
+                code: 200,
+                total,
+                totalResult: results.length,
+                payload: results,
+            });
+        } catch (err) {
+            return res.status(500).json({ code: 500, error: err });
+        }
+    },
+
+    hotsale: async(req, res, next) => {
+        try {
+            let results = await Order.aggregate()
+
+            .match({
+                    status: { $in: ['COMPLETED'] },
+                })
+                .unwind('orderDetails')
+
+            .lookup({
+                    from: 'products',
+                    localField: 'orderDetails.productId',
+                    foreignField: '_id',
+                    as: 'orderDetails.product',
+                })
+                .unwind('orderDetails.product')
+
+            .group({
+                    _id: '$orderDetails.productId',
+                    name: { $first: '$orderDetails.product.name' },
+                    price: { $first: '$orderDetails.product.price' },
+                    discount: { $first: '$orderDetails.product.discount' },
+                    stock: { $first: '$orderDetails.product.stock' },
+                    totalProductSale: {
+                        $sum: '$orderDetails.quantity',
+                    },
+                    count: { $sum: 1 },
+
+                })
+                .sort({
+                    totalProductSale: -1,
+                })
+                .limit(10)
+
+
+            // .group({
+            //         _id: '$orderDetails.productId',
+            //         // quantity: { $first: '$orderDetails.quantity' },
+            //         // price: { $first: '$orderDetails.price' },
+            //         // discount: { $first: '$orderDetails.discount' },
+            //         totalProduct: {
+            //             $sum: '$orderDetails.quantity',
+            //         },
+            //         count: { $sum: 1 },
+            //     })
+            //     .sort({
+            //         totalProduct: -1,
+            //     })
+            //     .limit(10)
+
+
+
+            // .group({
+            //     _id: '$orderDetails.productId',
+            //     quantity: { $first: '$orderDetails.quantity' },
+            //     price: { $first: '$orderDetails.price' },
+            //     discount: { $first: '$orderDetails.discount' },
+
+            //     // count: { $sum: 1 },
+            // });
+
+
+
+            let total = await Order.countDocuments();
+
+            return res.send({
+                code: 200,
+                total,
+                totalResult: results.length,
+                payload: results,
+            });
+        } catch (err) {
+            console.log('««««« err »»»»»', err);
+            return res.status(500).json({ code: 500, error: err });
+        }
+    },
+
+
+
+    // question30: async(req, res, next) => {
+    //     try {
+    //         let results = await Product.aggregate()
+    //             .lookup({
+    //                 from: 'products',
+    //                 localField: '_id',
+    //                 foreignField: 'categoryId',
+    //                 as: 'products'
+    //             })
+    //             .unwind({
+    //                 path: '$products',
+    //                 preserveNullAndEmptyArrays: true,
+    //             })
+    //             .lookup({
+    //                 from: 'orders',
+    //                 localField: 'products._id',
+    //                 foreignField: 'orderDetails.productId',
+    //                 as: 'orders'
+    //             })
+    //             .unwind({
+    //                 path: '$orders',
+    //                 preserveNullAndEmptyArrays: true,
+    //             })
+    //             .unwind({
+    //                 path: '$orders.orderDetails',
+    //                 preserveNullAndEmptyArrays: true,
+    //             })
+    //             .addFields({
+    //                 originalPrice: {
+    //                     $divide: [{
+    //                             $multiply: [
+    //                                 '$orders.orderDetails.price',
+    //                                 { $subtract: [100, '$orders.orderDetails.discount'] },
+    //                             ],
+    //                         },
+    //                         100,
+    //                     ],
+    //                 },
+    //                 amount: '$orders.orderDetails.quantity',
+    //             })
+    //             .group({
+    //                 _id: '$_id',
+    //                 name: { $first: '$name' },
+    //                 description: { $first: '$description' },
+    //                 total: {
+    //                     $sum: { $multiply: ['$originalPrice', '$amount'] },
+    //                 },
+    //             })
+
+    //         let total = await Order.countDocuments();
+
+    //         return res.send({
+    //             code: 200,
+    //             total,
+    //             totalResult: results.length,
+    //             payload: results,
+    //         });
+    //     } catch (err) {
+    //         console.log('««««« err »»»»»', err);
+    //         return res.status(500).json({ code: 500, error: err });
+    //     }
+    // },
+
+    // question20: async(req, res, next) => {
+    //     try {
+    //         let { fromDate, toDate } = req.query;
+    //         const conditionFind = getQueryDateTime(fromDate, toDate);
+
+    //         let results = await Order.aggregate()
+    //             .match({
+    //                 ...conditionFind,
+    //                 status: { $in: ['COMPLETED'] },
+    //             })
+    //             .unwind('orderDetails')
+    //             .lookup({
+    //                 from: 'products',
+    //                 localField: 'orderDetails.productId',
+    //                 foreignField: '_id',
+    //                 as: 'orderDetails.product',
+    //             })
+    //             .unwind('orderDetails.product')
+    //             .group({
+    //                 _id: '$orderDetails.productId',
+    //                 name: { $first: '$orderDetails.product.name' },
+    //                 price: { $first: '$orderDetails.product.price' },
+    //                 discount: { $first: '$orderDetails.product.discount' },
+    //                 stock: { $first: '$orderDetails.product.stock' },
+    //                 count: { $sum: 1 },
+    //             });
+
+    //         let total = await Order.countDocuments();
+
+    //         return res.send({
+    //             code: 200,
+    //             total,
+    //             totalResult: results.length,
+    //             payload: results,
+    //         });
+    //     } catch (err) {
+    //         console.log('««««« err »»»»»', err);
+    //         return res.status(500).json({ code: 500, error: err });
+    //     }
+    // },
 };

@@ -44,6 +44,11 @@ const supplierSchema = new Schema({
         maxLength: [500, 'Địa chỉ không được vượt quá 500 ký tự'],
         required: [true, 'Vui lòng nhập địa chỉ nhà cung cấp'],
     },
+    isBlocked: {
+        type: Boolean,
+        default: false,
+        required: true,
+    },
 }, {
     // versionKey(false) sẽ không tạo ra __v & timestamps(true) sẽ tạo ra thời gian tạo và update
     versionKey: false,

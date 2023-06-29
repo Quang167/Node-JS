@@ -52,6 +52,9 @@ const {
     question32,
     question33,
     question34,
+    hotsale,
+    flashsale,
+    categorylimit
 } = require('./controller');
 
 router.get('/1', question1);
@@ -99,6 +102,9 @@ router.get('/31', question31);
 router.get('/32', question32);
 router.get('/33', question33);
 router.get('/34', question34);
+router.get('/hotsale', hotsale);
+router.get('/flashsale', flashsale);
+router.get('/categorylimit', categorylimit);
 
 
 module.exports = router;
