@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
 const mongooseLeanVirtuals = require('mongoose-lean-virtuals');
+const bcrypt = require('bcryptjs');
 
 const customerSchema = Schema({
     firstName: {
@@ -45,7 +46,23 @@ const customerSchema = Schema({
     },
     birthday: {
         type: Date,
-    }
+    },
+    isBlocked: {
+        type: Boolean,
+        default: false,
+        required: true,
+    },
+    password: {
+        type: String,
+        minLength: [6, 'Mật khẩu phải có tối thiểu 6 kí tự'],
+        maxLength: [12, 'Mật khẩu không được vượt quá 12 ký tự'],
+        required: [true, 'Mật khẩu không được bỏ trống'],
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
+        required: true,
+    },
 
 }, {
     versionKey: false,
@@ -54,7 +71,30 @@ const customerSchema = Schema({
 
 customerSchema.virtual('fullName').get(function() {
     return `${this.firstName} ${this.lastName}`;
-})
+});
+
+customerSchema.pre('save', async function(next) {
+    try {
+        // generate salt key
+        const salt = await bcrypt.genSalt(10); // 10 ký tự ABCDEFGHIK + 123456
+        // generate password = salt key + hash key
+        const hashPass = await bcrypt.hash(this.password, salt);
+        // override password
+        this.password = hashPass;
+
+        next();
+    } catch (err) {
+        next(err);
+    }
+});
+
+customerSchema.methods.isValidPass = async function(pass) {
+    try {
+        return await bcrypt.compare(pass, this.password);
+    } catch (err) {
+        throw new Error(err);
+    }
+};
 
 // Config
 customerSchema.set('toJSON', { virtuals: true });

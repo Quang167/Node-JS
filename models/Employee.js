@@ -66,7 +66,12 @@ const employeeSchema = new Schema({
     roles: {
         type: Array,
         default: [],
-    }
+    },
+    isBlocked: {
+        type: Boolean,
+        default: false,
+        required: true,
+    },
 }, {
     versionKey: false,
 }, );

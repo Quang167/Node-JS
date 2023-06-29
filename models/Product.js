@@ -9,6 +9,9 @@ const mongooseLeanVirtuals = require('mongoose-lean-virtuals');
 // https://mongoosejs.com/docs/validation.html#built-in-validators
 
 const productSchema = Schema({
+    cover: {
+        type: String,
+    },
     name: {
         type: String,
         required: true,
@@ -24,7 +27,12 @@ const productSchema = Schema({
     description: {
         type: String,
         maxLength: [500, 'Mô tả Tên sản phẩm không được vượt quá 500 ký tự'],
-    }
+    },
+    isBlocked: {
+        type: Boolean,
+        default: false,
+        required: true,
+    },
 }, {
     versionKey: false,
     timeStamp: true,
